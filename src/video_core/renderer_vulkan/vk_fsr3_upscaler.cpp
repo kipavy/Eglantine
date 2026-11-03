@@ -114,7 +114,7 @@ struct Resource {
     VkDeviceSize size{};
 };
 
-constexpr VkMemoryBarrier MemoryBarrier(VkAccessFlags src, VkAccessFlags dst) {
+constexpr VkMemoryBarrier GlobalBarrier(VkAccessFlags src, VkAccessFlags dst) {
     return VkMemoryBarrier{
         .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
         .pNext = nullptr,
@@ -171,7 +171,7 @@ public:
             // The next pass reads what this one wrote (everything stays in GENERAL).
             cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
-                                   MemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT,
+                                   GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT,
                                                  VK_ACCESS_SHADER_READ_BIT |
                                                      VK_ACCESS_SHADER_WRITE_BIT));
         });
@@ -567,7 +567,7 @@ void Fsr3Upscaler::Upscale(const Inputs& in) {
         cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                0,
-                               MemoryBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                               GlobalBarrier(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
                                                  VK_ACCESS_SHADER_WRITE_BIT |
                                                  VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -619,7 +619,7 @@ void Fsr3Upscaler::Upscale(const Inputs& in) {
         }
         cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                0,
-                               MemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
+                               GlobalBarrier(VK_ACCESS_TRANSFER_WRITE_BIT,
                                              VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT));
     });
 
@@ -685,7 +685,7 @@ void Fsr3Upscaler::Upscale(const Inputs& in) {
     scheduler.Record([](vk::CommandBuffer cmdbuf) {
         cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                               MemoryBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
+                               GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT));
     });
     frame_parity = q;
 }
